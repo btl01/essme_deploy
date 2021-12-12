@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 nohup.out
+backup
 
 ### STS ###
 .apt_generated
