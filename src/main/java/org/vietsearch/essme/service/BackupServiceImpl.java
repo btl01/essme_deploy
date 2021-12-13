@@ -58,7 +58,7 @@ public class BackupServiceImpl implements BackupService {
     public boolean restore(String archiveName) {
         List<String> command = Arrays.asList(
                 "mongorestore",
-//                "--uri", mongoUri,
+                "--uri", mongoUri,
                 "--drop",
                 "--gzip",
                 "--archive=" + archiveName
