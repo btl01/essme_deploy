@@ -11,11 +11,11 @@ import java.util.Optional;
 public interface AcademicRankRepository extends MongoRepository<AcademicRank, String> {
     List<AcademicRank> findBy(TextCriteria textCriteria);
 
-@Query("{$or: [" +
-        "{'name': {'$regex': /^?0/i}}," +
-        "{'synonyms.vi': {'$regex': /^?0/i}}," +
-        "{'synonyms.en': {'$regex': /^?0/i}}" +
-        "]}")
+    @Query("{$or: [" +
+            "{'name': {$regex : /^?0/, $options : 'i'}}," +
+            "{'synonyms.vi': {$regex: /^?0/, $options : 'i'}}," +
+            "{'synonyms.en': {$regex: /^?0/, $options : 'i'}}" +
+            "]}")
     List<AcademicRank> findByNameOrSynonymsStartsWithIgnoreCase(String name);
 
     Optional<AcademicRank> findByNameIgnoreCase(String name);

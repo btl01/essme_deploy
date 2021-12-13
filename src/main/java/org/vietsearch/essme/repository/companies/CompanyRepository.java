@@ -12,10 +12,13 @@ public interface CompanyRepository extends MongoRepository<Company, String> {
     List<Company> findBy(TextCriteria textCriteria);
 
     @Query("{$or: [" +
-            "{'name': {'$regex': /^?0/i}}," +
-            "{'industries': {'$regex': /^?0/i}}" +
+            "{'names.de': {$regex: /^?0/, $options : 'i'}}," +
+            "{'names.en': {$regex: /^?0/, $options : 'i'}}," +
+            "{'names.fr': {$regex: /^?0/, $options : 'i'}}," +
+            "{'names.vi': {$regex: /^?0/, $options : 'i'}}," +
+            "{'industries': {$regex: /^?0/, $options : 'i'}}" +
             "]}")
-    List<Company>findByNameOrIndustriesStartsWithIgnoreCase(String name);
+    List<Company>findByNamesOrIndustriesStartsWithIgnoreCase(String name);
 
     Optional<Company> findByNameIgnoreCase(String name);
 }

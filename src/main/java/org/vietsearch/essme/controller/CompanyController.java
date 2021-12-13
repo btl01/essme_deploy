@@ -24,46 +24,42 @@ public class CompanyController {
     @Autowired
     private CompanyCustomRepoImpl customRepo;
 
-    @GetMapping("/search")
-    public List<Company> searchCompanies(@RequestParam("text") String text) {
-        List<Company> list = companyRepository.findBy(
-                TextCriteria.forDefaultLanguage().caseSensitive(false).matchingPhrase(text)
-        );
-        if (list.isEmpty()) list = companyRepository.findByNameOrIndustriesStartsWithIgnoreCase(text);
-        return list;
-    }
-
     @GetMapping
     public List<Company> getCompanies(@RequestParam(name = "page", defaultValue = "0") int page,
                                       @RequestParam(name = "size", defaultValue = "20") int size,
                                       @RequestParam(name = "sortBy", defaultValue = "name") @Parameter(description = "name | rank") String sortBy,
-                                      @RequestParam(name = "lang", defaultValue = "en") String lang, //en, vi, fr, de
+                                      @RequestParam(name = "lang", defaultValue = "en") @Parameter(description = "en | vi | fr | de") String lang,
                                       @RequestParam(name = "rankBy", defaultValue = "ValueToday") @Parameter(description = "ValueToday | Fortune | Forbes") String rankBy,
                                       @RequestParam(name = "asc", defaultValue = "true") boolean asc) {
         Sort sort = Sort.by("names." + lang);
         if (Objects.equals("rank", sortBy))
             sort = Sort.by("ranks." + rankBy);
-        if (!asc)
-            sort.descending();
+
+        sort = asc ? sort.ascending() : sort.descending();
+
         return companyRepository.findAll(PageRequest.of(page, size, sort)).getContent();
     }
 
-    @GetMapping("/country")
-    public List<Company> getByCountry(@RequestParam(name = "name") String name,
-                                      @RequestParam(name = "industry") String industry,
-                                      @RequestParam(name = "rank") String rank) {
-        return customRepo.getCompaniesByCountryIndustryRank(name, rank, industry);
-    }
-
-    @GetMapping("/{_id}")
+    @GetMapping("/id/{_id}")
     public Company getById(@PathVariable("_id") String _id) {
         return companyRepository.findById(_id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found"));
     }
 
-    @DeleteMapping("/{_id}")
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteById(@PathVariable("_id") String _id) {
-        companyRepository.deleteById(_id);
+    @GetMapping("/search")
+    public List<Company> searchCompanies(@RequestParam("text") String text) {
+        List<Company> list = companyRepository.findBy(
+                TextCriteria.forDefaultLanguage().caseSensitive(false).matchingPhrase(text)
+        );
+        if (list.isEmpty()) list = companyRepository.findByNamesOrIndustriesStartsWithIgnoreCase(text);
+        return list;
+    }
+
+    @GetMapping("/{country}/{industry}/{rank}")
+    public List<Company> getByCountry(@PathVariable("country") String country,
+                                      @PathVariable("industry") String industry,
+                                      @PathVariable("rank") @Parameter(description = "ValueToday | Forbes | Fortune") String rank,
+                                      @RequestParam(name = "asc", defaultValue = "true") boolean asc) {
+        return customRepo.getCompaniesByCountryIndustryAndRank(country, industry, rank, asc);
     }
 
     @PostMapping
@@ -80,6 +76,12 @@ public class CompanyController {
         checkExistsByName(company.getName());
         company.set_id(_id);
         return companyRepository.save(company);
+    }
+
+    @DeleteMapping("/{_id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteById(@PathVariable("_id") String _id) {
+        companyRepository.deleteById(_id);
     }
 
     private void checkExistsByName(String name) {

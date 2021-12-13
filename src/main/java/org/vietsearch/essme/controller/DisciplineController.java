@@ -9,34 +9,28 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.vietsearch.essme.model.academic_disciplines.Discipline;
-import org.vietsearch.essme.repository.academic_disciplines.DisciplineCustomRepoImpl;
 import org.vietsearch.essme.repository.academic_disciplines.DisciplineRepository;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/discipline")
 public class DisciplineController {
     @Autowired
     private DisciplineRepository disciplineRepository;
-    @Autowired
-    private DisciplineCustomRepoImpl disciplineCustomRepoIpml;
 
     @GetMapping
     public List<Discipline> getDisciplines(@RequestParam(name = "page", defaultValue = "0") int page,
                                            @RequestParam(name = "size", defaultValue = "20") int size,
-                                           @RequestParam(name = "sortBy", defaultValue = "name") @Parameter(description = "name | level") String sortBy,
-                                           @RequestParam(name = "lang", defaultValue = "en") String lang,
+                                           @RequestParam(name = "lang", defaultValue = "en") @Parameter(description = "en | vi") String lang,
                                            @RequestParam(name = "asc", defaultValue = "true") boolean asc) {
         Sort sort = Sort.by("names." + lang);
-        if ("level".equals(sortBy))
-            sort = Sort.by("level");
-        if (!asc) sort.descending();
+        sort = asc ? sort.ascending() : sort.descending();
+
         return disciplineRepository.findAll(PageRequest.of(page, size, sort)).getContent();
     }
 
-    @GetMapping("/{_id}")
+    @GetMapping("/id/{_id}")
     public Discipline getDisciplineById(@PathVariable("_id") String _id) {
         return disciplineRepository.findById(_id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Discipline not found"));
     }
@@ -51,19 +45,16 @@ public class DisciplineController {
         return list;
     }
 
-    @GetMapping("/parent")
-    public Object parent(@RequestParam(name = "name", required = false) String name) {
-        if (!Objects.equals(name, null)) {
-            return disciplineCustomRepoIpml.findByParentId(name);
-        } else {
-            return disciplineCustomRepoIpml.getNumberOfDisciplinesInEachParent();
-        }
+    @GetMapping("/{parent_id}")
+    public Object parent(@PathVariable("parent_id") String parentId) {
+       return disciplineRepository.findByParentIdStartsWithIgnoreCase(parentId);
     }
 
-    @DeleteMapping("/{_id}")
-    @ResponseStatus(value = HttpStatus.OK)
-    public void deleteById(@PathVariable("_id") String _id) {
-        disciplineRepository.deleteById(_id);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Discipline addDiscipline(@RequestBody Discipline discipline) {
+        checkExistsByName(discipline.getName());
+        return disciplineRepository.insert(discipline);
     }
 
     @PutMapping("/{_id}")
@@ -75,11 +66,10 @@ public class DisciplineController {
         return disciplineRepository.save(discipline);
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Discipline addDiscipline(@RequestBody Discipline discipline) {
-        checkExistsByName(discipline.getName());
-        return disciplineRepository.insert(discipline);
+    @DeleteMapping("/{_id}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public void deleteById(@PathVariable("_id") String _id) {
+        disciplineRepository.deleteById(_id);
     }
 
     private void checkExistsByName(String name) {

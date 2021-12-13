@@ -16,9 +16,6 @@ public class Discipline {
     @JsonProperty("names")
     private Names names;
 
-    @JsonProperty("level")
-    private int level;
-
     @Field(name = "parent_id")
     @JsonProperty("parent_id")
     private String parentId;

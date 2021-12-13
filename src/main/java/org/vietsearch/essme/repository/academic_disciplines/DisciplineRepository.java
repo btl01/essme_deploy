@@ -11,11 +11,13 @@ import java.util.Optional;
 public interface DisciplineRepository extends MongoRepository<Discipline, String> {
     List<Discipline> findBy(TextCriteria criteria);
 
+    List<Discipline> findByParentIdStartsWithIgnoreCase(String parentId);
+
     @Query("{$or:[" +
-            "{'names.en': {'$regex': /^?0/i}}," +
-            "{'names.vi': {'$regex': /^?0/i}}," +
-            "{'synonyms.vi': {'$regex': /^?0/i}}," +
-            "{'synonyms.en': {'$regex': /^?0/i}}" +
+            "{'names.en': {$regex: /^?0/, $options : 'i'}}," +
+            "{'names.vi': {$regex: /^?0/, $options : 'i'}}," +
+            "{'synonyms.vi': {$regex: /^?0/, $options : 'i'}}," +
+            "{'synonyms.en': {$regex: /^?0/, $options : 'i'}}" +
             "]}")
     List<Discipline> findByNamesOrSynonymsStartsWithIgnoreCase(String text);
 

@@ -5,7 +5,5 @@ import org.vietsearch.essme.model.companies.Company;
 import java.util.List;
 
 public interface CompanyCustomRepo {
-    List<Company> getCompaniesByCountryIndustryRank(String country, String rank, String industry);
-
-    ;
+    List<Company> getCompaniesByCountryIndustryAndRank(String country, String industry, String rank, boolean asc);
 }

@@ -11,6 +11,7 @@ import org.vietsearch.essme.model.academic_rank.AcademicRank;
 import org.vietsearch.essme.repository.academic_rank.AcademicRankRepository;
 
 import java.util.List;
+import java.util.Objects;
 
 
 @RestController
@@ -19,6 +20,20 @@ public class AcademicRankController {
     @Autowired
     private AcademicRankRepository rankRepository;
 
+    @GetMapping
+    public List<AcademicRank> getAcademicRanks(@RequestParam(name = "page", defaultValue = "0") int page,
+                                               @RequestParam(name = "size", defaultValue = "20") int size,
+                                               @RequestParam(name = "asc", defaultValue = "true") boolean asc) {
+        Sort sort = Sort.by("name");
+        sort = asc ? sort.ascending() : sort.descending();
+
+        return rankRepository.findAll(PageRequest.of(page, size, sort)).getContent();
+    }
+    @GetMapping("/{_id}")
+    public AcademicRank getById(@PathVariable("_id") String _id) {
+        return rankRepository.findById(_id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rank not found"));
+    }
+
     @GetMapping("/search")
     public List<AcademicRank> searchAcademicRank(@RequestParam(name = "text") String text) {
         List<AcademicRank> list = rankRepository.findBy(
@@ -26,21 +41,6 @@ public class AcademicRankController {
         );
         if (list.isEmpty()) list = rankRepository.findByNameOrSynonymsStartsWithIgnoreCase(text);
         return list;
-    }
-
-    @GetMapping
-    public List<AcademicRank> getAcademicRanks(@RequestParam(name = "page", defaultValue = "0") int page,
-                                               @RequestParam(name = "size", defaultValue = "20") int size,
-                                               @RequestParam(name = "asc", defaultValue = "true") boolean asc) {
-        Sort sort = Sort.by("name");
-        if (!asc)
-            sort.descending();
-        return rankRepository.findAll(PageRequest.of(page, size, sort)).getContent();
-    }
-
-    @GetMapping("/{_id}")
-    public AcademicRank getById(@PathVariable("_id") String _id) {
-        return rankRepository.findById(_id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rank not found"));
     }
 
     @PostMapping
