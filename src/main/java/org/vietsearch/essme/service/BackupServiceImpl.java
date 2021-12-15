@@ -9,10 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class BackupServiceImpl implements BackupService {
@@ -34,7 +32,7 @@ public class BackupServiceImpl implements BackupService {
 
     @Override
     public String dump() {
-        String archiveName = String.valueOf(new Date());
+        String archiveName = LocalDateTime.now().toString();
         List<String> command = Arrays.asList(
                 "mongodump",
                 "--db", "essme_test",
@@ -85,9 +83,11 @@ public class BackupServiceImpl implements BackupService {
     }
 
     @Override
-    public String[] list() {
+    public List<String> list() {
         File file = root.toFile();
-        return file.list();
+        List<String> list = new ArrayList<>(Arrays.asList(Objects.requireNonNull(file.list())));
+        list.sort(Comparator.comparing(LocalDateTime::parse));
+        return list;
     }
 
     @Override
@@ -96,13 +96,8 @@ public class BackupServiceImpl implements BackupService {
     }
 
     @Override
-    public String save(MultipartFile file) {
-        if (file == null) return "";
-        try {
-            file.transferTo(root.resolve(Objects.requireNonNull(file.getOriginalFilename())));
-            return file.getOriginalFilename();
-        } catch (IOException e) {
-            return "";
-        }
+    public String save(MultipartFile file) throws IOException {
+        file.transferTo(root.resolve(Objects.requireNonNull(file.getOriginalFilename())));
+        return file.getOriginalFilename();
     }
 }

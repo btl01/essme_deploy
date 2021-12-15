@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -25,8 +27,14 @@ public class BackupController {
     BackupService backupService;
 
     @GetMapping("/backup")
-    public String[] listArchive() {
-        return backupService.list();
+    public List<String> listArchive(@RequestParam(value = "asc", required = false) boolean asc) {
+        if (asc)
+            return backupService.list();
+        else {
+            List<String> list = backupService.list();
+            Collections.reverse(list);
+            return list;
+        }
     }
 
     @GetMapping("/backup/download/{filename}")
@@ -52,7 +60,11 @@ public class BackupController {
 
     @PostMapping("/backup")
     public String uploadFile(@RequestParam MultipartFile file) {
-        return backupService.save(file);
+        try {
+            return backupService.save(file);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping("/backup/{filename}")
