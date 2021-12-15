@@ -29,5 +29,6 @@ public class EssmeApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         backupService.init();
+        System.out.println("Hello");
     }
 }
