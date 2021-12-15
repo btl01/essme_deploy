@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -27,14 +26,8 @@ public class BackupController {
     BackupService backupService;
 
     @GetMapping("/backup")
-    public List<String> listArchive(@RequestParam(value = "asc", required = false) boolean asc) {
-        if (asc)
-            return backupService.list();
-        else {
-            List<String> list = backupService.list();
-            Collections.reverse(list);
-            return list;
-        }
+    public List<String> listArchive() {
+        return backupService.list();
     }
 
     @GetMapping("/backup/download/{filename}")
@@ -51,20 +44,14 @@ public class BackupController {
 
     @GetMapping("/backup/create")
     public String createBackup() {
-        String name = backupService.dump();
-        if (!"".equals(name))
-            return name;
-        else
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not create backup");
+        return backupService.dump()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not create backup"));
     }
 
     @PostMapping("/backup")
     public String uploadFile(@RequestParam MultipartFile file) {
-        try {
-            return backupService.save(file);
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return backupService.save(file)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not save backup"));
     }
 
     @DeleteMapping("/backup/{filename}")

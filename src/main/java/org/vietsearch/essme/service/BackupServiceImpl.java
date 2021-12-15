@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class BackupServiceImpl implements BackupService {
@@ -31,8 +31,8 @@ public class BackupServiceImpl implements BackupService {
     }
 
     @Override
-    public String dump() {
-        String archiveName = LocalDateTime.now().toString();
+    public Optional<String> dump() {
+        String archiveName = String.valueOf(new Date());
         List<String> command = Arrays.asList(
                 "mongodump",
                 "--db", "essme_test",
@@ -46,9 +46,9 @@ public class BackupServiceImpl implements BackupService {
 
             //WAITING FOR A RETURN FROM THE PROCESS WE STARTED
             int exitCode = process.waitFor();
-            return exitCode == 0 ? archiveName : "";
+            return exitCode == 0 ? Optional.of(archiveName) : Optional.empty();
         } catch (InterruptedException | IOException e) {
-            return "";
+            return Optional.empty();
         }
     }
 
@@ -84,10 +84,12 @@ public class BackupServiceImpl implements BackupService {
 
     @Override
     public List<String> list() {
-        File file = root.toFile();
-        List<String> list = new ArrayList<>(Arrays.asList(Objects.requireNonNull(file.list())));
-        list.sort(Comparator.comparing(LocalDateTime::parse));
-        return list;
+        File[] files = root.toFile().listFiles();
+        assert files != null;
+        return Arrays.stream(files)
+                .sorted(Comparator.comparingLong(File::lastModified).reversed())
+                .map(File::getName)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -96,8 +98,13 @@ public class BackupServiceImpl implements BackupService {
     }
 
     @Override
-    public String save(MultipartFile file) throws IOException {
-        file.transferTo(root.resolve(Objects.requireNonNull(file.getOriginalFilename())));
-        return file.getOriginalFilename();
+    public Optional<String> save(MultipartFile file) {
+        if (file == null) return Optional.empty();
+        try {
+            file.transferTo(root.resolve(Objects.requireNonNull(file.getOriginalFilename())));
+            return Optional.ofNullable(file.getOriginalFilename());
+        } catch (IOException e) {
+            return Optional.empty();
+        }
     }
 }

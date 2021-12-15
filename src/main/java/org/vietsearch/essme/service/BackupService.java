@@ -3,13 +3,13 @@ package org.vietsearch.essme.service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public interface BackupService {
     void init();
 
-    String dump();
+    Optional<String> dump();
 
     boolean restore(String archiveName);
 
@@ -19,5 +19,5 @@ public interface BackupService {
 
     File load(String filename);
 
-    String save(MultipartFile file) throws IOException;
+    Optional<String> save(MultipartFile file);
 }
