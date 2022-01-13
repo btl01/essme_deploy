@@ -8,13 +8,13 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class Ranks {
     @Field("Forbes")
     @JsonProperty("Forbes")
-    private int forbes;
+    private Integer forbes;
 
     @Field("Fortune")
     @JsonProperty("Fortune")
-    private int fortune;
+    private Integer fortune;
 
     @Field("ValueToday")
     @JsonProperty("ValueToday")
-    private int valueToday;
+    private Integer valueToday;
 }

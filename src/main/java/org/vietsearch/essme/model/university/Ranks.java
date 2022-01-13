@@ -7,11 +7,11 @@ import lombok.Data;
 public class Ranks{
 
 	@JsonProperty("the")
-	private int the;
+	private Integer the;
 
 	@JsonProperty("qs")
-	private int qs;
+	private Integer qs;
 
 	@JsonProperty("arwu")
-	private int arwu;
+	private Integer arwu;
 }

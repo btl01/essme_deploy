@@ -28,13 +28,13 @@ public class Expert {
     private String address;
 
     @JsonProperty("gender")
-    private int gender;
+    private Integer gender;
 
     @JsonProperty("degree")
     private String degree;
 
     @NotNull
-    private double score;
+    private Double score;
 
     @JsonProperty("birth")
     private String birth;
@@ -62,7 +62,7 @@ public class Expert {
     private String email;
 
     @Field(name = "link profile")
-    @JsonProperty("link profile")
+    @JsonProperty("link_profile")
     private String linkProfile;
 
     @JsonProperty("uid")

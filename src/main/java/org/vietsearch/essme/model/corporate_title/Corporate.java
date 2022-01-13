@@ -34,7 +34,7 @@ public class Corporate {
 	private String name;
 
 	@JsonProperty("weight")
-	private int weight;
+	private Integer weight;
 
 	@JsonProperty("id")
 	private String id;
