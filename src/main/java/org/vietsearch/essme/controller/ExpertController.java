@@ -1,5 +1,6 @@
 package org.vietsearch.essme.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,14 +9,15 @@ import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
 import org.vietsearch.essme.filter.AuthenticatedRequest;
+
 import org.vietsearch.essme.model.expert.Expert;
 import org.vietsearch.essme.repository.experts.ExpertCustomRepositoryImpl;
 import org.vietsearch.essme.repository.experts.ExpertRepository;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/experts")
@@ -26,23 +28,27 @@ public class ExpertController {
     @Autowired
     private ExpertCustomRepositoryImpl expertCustomRepository;
 
+    @GetMapping
+    public List<Expert> getWithLimit(@RequestParam(name = "limit", defaultValue = "20") int limit){
+        return expertRepository.findAll(PageRequest.of(0, limit)).getContent();
+    }
+
     @GetMapping("/search")
     public List<Expert> searchExperts(@RequestParam("what") String what) {
-        TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(what);
+        TextCriteria criteria = TextCriteria.forDefaultLanguage().caseSensitive(false).matchingPhrase(what);
         return expertRepository.findBy(criteria);
     }
 
-    @GetMapping
-    public List<Expert> getExperts(@RequestParam(value = "page", defaultValue = "0") int page,
+    @GetMapping(path = "/page")
+    public Page<Expert> getExperts(@RequestParam(value = "page", defaultValue = "0") int page,
                                    @RequestParam(value = "size", defaultValue = "20") int size,
-                                   @RequestParam(value = "sort", defaultValue = "name") String sortAttr,
+                                   @RequestParam(value = "sort", defaultValue = "degree index") @Parameter(description = "sort by 'name' or 'dergee index'") String sortAttr,
                                    @RequestParam(value = "desc", defaultValue = "false") boolean desc) {
         Sort sort = Sort.by(sortAttr);
-        if (desc)
-            sort = sort.descending();
+        sort = desc ? sort.descending() : sort.ascending();
 
         Page<Expert> expertPage = expertRepository.findAll(PageRequest.of(page, size, sort));
-        return expertPage.getContent();
+        return expertPage;
     }
 
     @GetMapping("/{id}")
@@ -51,8 +57,8 @@ public class ExpertController {
     }
 
     @GetMapping("/field")
-    public Map<String, Integer> getNumberOfExpertsInEachField() {
-        return this.expertCustomRepository.getNumberOfExpertsInEachField();
+    public List<Object> getNumberOfExpertsInEachField() {
+        return expertCustomRepository.getNumberOfExpertsInEachField();
     }
 
     @PutMapping("/{id}")

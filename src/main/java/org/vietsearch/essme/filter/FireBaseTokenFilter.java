@@ -59,21 +59,23 @@ public class FireBaseTokenFilter extends OncePerRequestFilter {
 
     private Role saveUser(String uid) throws FirebaseAuthException {
         UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
-
-        User mongoUser = userRepository.findById(uid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found", null));
-        Role role = mongoUser.getRole();
-        System.out.println(role);
-
-        System.out.println(userRecord.getEmail());
         User user = new User();
         user.setUid(uid);
         user.setEmail(userRecord.getEmail());
         user.setDisplayName(userRecord.getDisplayName());
         user.setPhoneNumber(userRecord.getPhoneNumber());
         user.setPhotoURL(userRecord.getPhotoUrl());
-        user.setRole(role);
-        userRepository.save(user);
+        System.out.println(userRecord.getEmail());
 
+        Role role = null;
+        if(userRepository.existsById(uid)) {
+            User mongoUser = userRepository.findById(uid).orElse(null);
+            role = mongoUser.getRole();
+            System.out.println(role);
+            user.setRole(role);
+        }
+
+        userRepository.save(user);
         return role;
     }
 }

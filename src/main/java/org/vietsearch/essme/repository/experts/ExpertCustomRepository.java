@@ -1,7 +1,7 @@
 package org.vietsearch.essme.repository.experts;
 
-import java.util.Map;
+import java.util.List;
 
 public interface ExpertCustomRepository {
-    Map<String, Integer> getNumberOfExpertsInEachField();
+    List<Object> getNumberOfExpertsInEachField();
 }
