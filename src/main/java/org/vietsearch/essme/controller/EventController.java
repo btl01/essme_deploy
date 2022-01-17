@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.vietsearch.essme.model.Event;
+import org.vietsearch.essme.model.Event.Event;
 import org.vietsearch.essme.repository.EventRepository;
 
 import java.util.List;

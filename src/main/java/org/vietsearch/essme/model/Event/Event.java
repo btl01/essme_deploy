@@ -1,4 +1,4 @@
-package org.vietsearch.essme.model;
+package org.vietsearch.essme.model.Event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -35,4 +35,6 @@ public class Event {
 
     @JsonProperty("desc")
     private String desc;
+
+    private Geojson geojson;
 }

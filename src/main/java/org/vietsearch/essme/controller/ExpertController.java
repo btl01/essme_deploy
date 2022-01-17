@@ -2,10 +2,8 @@ package org.vietsearch.essme.controller;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.TextCriteria;
+import org.springframework.data.domain.*;
+import org.springframework.format.annotation.NumberFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,14 +27,21 @@ public class ExpertController {
     private ExpertCustomRepositoryImpl expertCustomRepository;
 
     @GetMapping
-    public List<Expert> getWithLimit(@RequestParam(name = "limit", defaultValue = "20") int limit){
+    public List<Expert> getWithLimit(@RequestParam(name = "limit", defaultValue = "20") int limit) {
         return expertRepository.findAll(PageRequest.of(0, limit)).getContent();
     }
 
     @GetMapping("/search")
-    public List<Expert> searchExperts(@RequestParam("what") String what) {
-        TextCriteria criteria = TextCriteria.forDefaultLanguage().caseSensitive(false).matchingPhrase(what);
-        return expertRepository.findBy(criteria);
+    public Page<Expert> searchExperts(@RequestParam(value = "what", required = false) String what,
+                                      @RequestParam(value = "where", required = false) String where,
+                                      @RequestParam(value = "radius", required = false, defaultValue = "5") @Parameter(description = "radius is kilometer") @NumberFormat double radius) {
+
+        // return all if blank
+        if (what == null && where == null) {
+            return new PageImpl<Expert>(expertRepository.findAll());
+        }
+
+        return expertCustomRepository.searchByLocationAndText(what, where, radius);
     }
 
     @GetMapping(path = "/page")
@@ -66,7 +71,7 @@ public class ExpertController {
     public Expert update(AuthenticatedRequest request, @PathVariable("id") String id, @Valid @RequestBody Expert expert) {
         String uuid = request.getUserId();
         expertRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expert not found"));
-        if(!matchExpert(uuid, id)){
+        if (!matchExpert(uuid, id)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied", null);
         }
         expert.setUid(uuid);
@@ -83,17 +88,17 @@ public class ExpertController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void delete(AuthenticatedRequest authenticatedRequest,@PathVariable("id") String id) {
+    public void delete(AuthenticatedRequest authenticatedRequest, @PathVariable("id") String id) {
         String uuid = authenticatedRequest.getUserId();
         if (!expertRepository.existsById(id))
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        if(!matchExpert(uuid, id)){
+        if (!matchExpert(uuid, id)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied", null);
         }
         expertRepository.deleteById(id);
     }
 
-    private boolean matchExpert(String uuid, String expertChangedId){
+    private boolean matchExpert(String uuid, String expertChangedId) {
         return uuid.equals(expertChangedId);
     }
 }
