@@ -6,6 +6,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.List;
+
 @Data
 @Document("events")
 public class Event {
@@ -31,7 +33,7 @@ public class Event {
     private String time;
 
     @JsonProperty("type")
-    private String type;
+    private List<String> type;
 
     @JsonProperty("desc")
     private String desc;
