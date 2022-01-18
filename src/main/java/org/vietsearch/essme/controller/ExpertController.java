@@ -2,17 +2,19 @@ package org.vietsearch.essme.controller;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.NumberFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import org.vietsearch.essme.filter.AuthenticatedRequest;
-
 import org.vietsearch.essme.model.expert.Expert;
 import org.vietsearch.essme.repository.experts.ExpertCustomRepositoryImpl;
 import org.vietsearch.essme.repository.experts.ExpertRepository;
+import org.vietsearch.essme.service.ExpertService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -25,6 +27,14 @@ public class ExpertController {
 
     @Autowired
     private ExpertCustomRepositoryImpl expertCustomRepository;
+
+    @Autowired
+    ExpertService expertService;
+
+    @GetMapping("/top")
+    public List<Expert> getTop() {
+        return expertService.getTop9ExpertDistinctByRA();
+    }
 
     @GetMapping
     public List<Expert> getWithLimit(@RequestParam(name = "limit", defaultValue = "20") int limit) {
