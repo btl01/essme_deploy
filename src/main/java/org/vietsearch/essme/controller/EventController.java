@@ -1,8 +1,10 @@
 package org.vietsearch.essme.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +23,13 @@ public class EventController {
     @GetMapping("/search")
     public Page<Event> searchEvents(@RequestParam(value = "what", required = false) String what,
                                     @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-                                    @RequestParam(value = "size", defaultValue = "20", required = false) int size) {
+                                    @RequestParam(value = "size", defaultValue = "20", required = false) int size,
+                                    @Parameter(hidden = true) Pageable pageable) {
         if (what == null) {
-            return eventRepository.findAll(PageRequest.of(page, size));
+            return eventRepository.findAll(pageable);
         }
         TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(what);
-        return eventRepository.findBy(criteria, PageRequest.of(page, size));
+        return eventRepository.findBy(criteria, pageable);
     }
 
     @GetMapping
