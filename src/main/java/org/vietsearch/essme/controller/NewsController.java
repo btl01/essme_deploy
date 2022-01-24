@@ -2,6 +2,7 @@ package org.vietsearch.essme.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.http.HttpStatus;
@@ -19,14 +20,20 @@ public class NewsController {
     private NewsRepository newsRepository;
 
     @GetMapping("/search")
-    public List<News> search(@RequestParam("what") String what) {
-        TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(what);
-        return newsRepository.findBy(criteria);
+    public Page<News> search(@RequestParam(value = "what", required = false) String what,
+                             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+                             @RequestParam(value = "size", defaultValue = "20", required = false) int size) {
+        if( what != null){
+            TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(what);
+            List<News> list = newsRepository.findBy(criteria);
+            return new PageImpl<>(list, PageRequest.of(page, size), list.size());
+        }
+        return newsRepository.findAll(PageRequest.of(page, size));
     }
 
     @GetMapping
-    public List<News> getNews(@RequestParam(value = "page", defaultValue = "0") int page,
-                              @RequestParam(value = "size", defaultValue = "20") int size) {
+    public List<News> getNews(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
+                              @RequestParam(value = "size", defaultValue = "20", required = false) int size) {
         Page<News> newsPagePage = newsRepository.findAll(PageRequest.of(page, size));
         return newsPagePage.getContent();
     }

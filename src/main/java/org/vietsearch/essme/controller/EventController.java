@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.vietsearch.essme.model.Event.Event;
 import org.vietsearch.essme.repository.EventRepository;
+import org.vietsearch.essme.service.event.EventService;
 
 import java.util.List;
 
@@ -18,10 +19,14 @@ public class EventController {
     @Autowired
     private EventRepository eventRepository;
 
+    @Autowired
+    private EventService eventService;
+
     @GetMapping("/search")
-    public List<Event> searchEvents(@RequestParam("what") String what) {
-        TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(what);
-        return eventRepository.findBy(criteria);
+    public Page<Event> searchEvents(@RequestParam(value = "what", required = false) String what,
+                                    @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+                                    @RequestParam(value = "size", defaultValue = "20", required = false) int size) {
+        return eventService.search(what, PageRequest.of(page, size));
     }
 
     @GetMapping

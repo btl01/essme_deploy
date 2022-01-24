@@ -1,13 +1,11 @@
 package org.vietsearch.essme.repository.experts;
 
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Circle;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOptions;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,8 +18,6 @@ import org.vietsearch.essme.utils.OpenStreetMapUtils;
 
 import java.util.List;
 import java.util.Map;
-
-import static org.springframework.data.mongodb.core.aggregation.BooleanOperators.And.and;
 
 @Repository
 public class ExpertCustomRepositoryImpl implements ExpertCustomRepository {
@@ -43,7 +39,7 @@ public class ExpertCustomRepositoryImpl implements ExpertCustomRepository {
     }
 
     @Override
-    public Page<Expert> searchByLocationAndText(String what, String where, double radius) {
+    public PageImpl searchByLocationAndText(String what, String where, double radius, Pageable pageable) {
         Query query = new Query();
         radius = radius/6378.0;
 
@@ -59,7 +55,9 @@ public class ExpertCustomRepositoryImpl implements ExpertCustomRepository {
             query.addCriteria(Criteria.where("location.features.geometry").withinSphere(new Circle(coords.get("lon"), coords.get("lat"), radius)));
         }
 
-        return new PageImpl<>(mongoTemplate.find(query, Expert.class));
+
+        List<Expert> list = mongoTemplate.find(query, Expert.class);
+        return new PageImpl<>(list, pageable, list.size() );
     }
 
 }

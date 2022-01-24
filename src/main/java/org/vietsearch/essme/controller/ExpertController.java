@@ -44,14 +44,16 @@ public class ExpertController {
     @GetMapping("/search")
     public Page<Expert> searchExperts(@RequestParam(value = "what", required = false) String what,
                                       @RequestParam(value = "where", required = false) String where,
-                                      @RequestParam(value = "radius", required = false, defaultValue = "5") @Parameter(description = "radius is kilometer") @NumberFormat double radius) {
+                                      @RequestParam(value = "radius", required = false, defaultValue = "5") @Parameter(description = "radius is kilometer") @NumberFormat double radius,
+                                      @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+                                      @RequestParam(value = "size", defaultValue = "20", required = false) int size) {
 
         // return all if blank
         if (what == null && where == null) {
-            return new PageImpl<Expert>(expertRepository.findAll());
+            return expertRepository.findAll(PageRequest.of(page, size));
         }
 
-        return expertCustomRepository.searchByLocationAndText(what, where, radius);
+        return expertCustomRepository.searchByLocationAndText(what, where, radius, PageRequest.of(page, size));
     }
 
     @GetMapping(path = "/page")
