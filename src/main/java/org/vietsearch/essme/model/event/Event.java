@@ -1,4 +1,4 @@
-package org.vietsearch.essme.model.Event;
+package org.vietsearch.essme.model.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

@@ -9,7 +9,7 @@ import org.vietsearch.essme.model.homepage.Homepage;
 import org.vietsearch.essme.repository.EventRepository;
 import org.vietsearch.essme.repository.HomepageRepository;
 import org.vietsearch.essme.repository.NewsRepository;
-import org.vietsearch.essme.service.ExpertService;
+import org.vietsearch.essme.service.expert.ExpertService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;

@@ -3,7 +3,6 @@ package org.vietsearch.essme.controller;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.NumberFormat;
@@ -14,7 +13,7 @@ import org.vietsearch.essme.filter.AuthenticatedRequest;
 import org.vietsearch.essme.model.expert.Expert;
 import org.vietsearch.essme.repository.experts.ExpertCustomRepositoryImpl;
 import org.vietsearch.essme.repository.experts.ExpertRepository;
-import org.vietsearch.essme.service.ExpertService;
+import org.vietsearch.essme.service.expert.ExpertService;
 
 import javax.validation.Valid;
 import java.util.List;

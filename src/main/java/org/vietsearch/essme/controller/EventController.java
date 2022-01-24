@@ -7,9 +7,8 @@ import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.vietsearch.essme.model.Event.Event;
+import org.vietsearch.essme.model.event.Event;
 import org.vietsearch.essme.repository.EventRepository;
-import org.vietsearch.essme.service.event.EventService;
 
 import java.util.List;
 
@@ -19,20 +18,23 @@ public class EventController {
     @Autowired
     private EventRepository eventRepository;
 
-    @Autowired
-    private EventService eventService;
-
     @GetMapping("/search")
     public Page<Event> searchEvents(@RequestParam(value = "what", required = false) String what,
                                     @RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                     @RequestParam(value = "size", defaultValue = "20", required = false) int size) {
-        return eventService.search(what, PageRequest.of(page, size));
+        if (what == null) {
+            return eventRepository.findAll(PageRequest.of(page, size));
+        }
+        TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(what);
+        return eventRepository.findBy(criteria, PageRequest.of(page, size));
     }
 
     @GetMapping
-    public List<Event> getEvents(@RequestParam(value = "page", defaultValue = "0") int page,
-                                 @RequestParam(value = "size", defaultValue = "20") int size) {
-        Page<Event> eventPage = eventRepository.findAll(PageRequest.of(page, size));
+    public List<Event> getEvents(@RequestParam(value = "limit", required = false) Integer limit) {
+        if (limit == null) {
+            return eventRepository.findAll();
+        }
+        Page<Event> eventPage = eventRepository.findAll(PageRequest.of(0, limit));
         return eventPage.getContent();
     }
 

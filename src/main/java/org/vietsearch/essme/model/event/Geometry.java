@@ -1,4 +1,4 @@
-package org.vietsearch.essme.model.Event;
+package org.vietsearch.essme.model.event;
 
 import lombok.Data;
 

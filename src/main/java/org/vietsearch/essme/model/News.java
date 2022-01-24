@@ -11,9 +11,6 @@ public class News {
     @JsonProperty(value = "_id", access = JsonProperty.Access.READ_ONLY)
     private String id;
 
-    @JsonProperty("stt")
-    private String stt;
-
     @JsonProperty("img")
     private String img;
 
