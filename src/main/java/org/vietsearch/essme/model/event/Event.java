@@ -22,9 +22,9 @@ public class Event {
     @JsonProperty("web")
     private String web;
 
-    @Field("event_name")
-    @JsonProperty("event_name")
-    private String eventName;
+    @Field("name_event")
+    @JsonProperty("name_event")
+    private String nameEvent;
 
     @JsonProperty("location")
     private String location;
