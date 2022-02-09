@@ -43,6 +43,11 @@ public class IndustryController {
         return industryRepository.findAll(PageRequest.of(page, size, sort)).getContent();
     }
 
+    @GetMapping("/{id}")
+    public Industry getIndustryById(@PathVariable String id) {
+        return industryRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Industry not found"));
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Industry createIndustry(@Valid @RequestBody Industry industry) {
@@ -53,13 +58,12 @@ public class IndustryController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void delete(@PathVariable("id") String id) {
-            industryRepository.deleteById(id);
+        industryRepository.deleteById(id);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Industry update(@PathVariable("id") String id, @Valid @RequestBody Industry industry) {
-        industryRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Industry not found"));
         checkExistsByName(industry.getName());
         industry.set_id(id);
         return industryRepository.save(industry);
@@ -67,7 +71,7 @@ public class IndustryController {
 
     private void checkExistsByName(String name) {
         if (industryRepository.findByNameIgnoreCase(name) != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Industry already exists");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Industry name already exists");
         }
     }
 }

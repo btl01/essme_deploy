@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface AnswerQuestionRepository extends MongoRepository<Question,String> {
     Page<Question> findByTopic(String topic, Pageable pageable);
-    List<Question> findBy(TextCriteria criteria);
+    Page<Question> findBy(TextCriteria criteria, Pageable pageable);
     List<Question> findByCustomerId(String customerId);
     @Query("{'answers.expert_id':?0}")
     List<Question> findByAnswersExpertId(String expertId);
