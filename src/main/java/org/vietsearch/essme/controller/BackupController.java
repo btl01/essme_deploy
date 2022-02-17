@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api")
@@ -50,6 +51,10 @@ public class BackupController {
 
     @PostMapping("/backup")
     public String uploadFile(@RequestParam MultipartFile file) {
+        System.out.println(file.getContentType());
+        if (!Objects.equals(file.getContentType(), "application/octet-stream")) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "File type is wrong");
+        }
         return backupService.save(file)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not save backup"));
     }

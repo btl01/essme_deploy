@@ -1,18 +1,15 @@
 package org.vietsearch.essme.controller;
 
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.vietsearch.essme.filter.AuthenticatedRequest;
-import org.vietsearch.essme.model.News;
 import org.vietsearch.essme.model.answer_question.Answer;
 import org.vietsearch.essme.model.answer_question.Question;
 import org.vietsearch.essme.repository.AnswerQuestionRepository;
@@ -34,7 +31,7 @@ public class AnswerQuestionController {
 
     @GetMapping("/{id}")
     public Question getQuestionbyId(@PathVariable("id") String id) {
-        return questionRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
+        return questionRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
     }
 
     @GetMapping
@@ -49,14 +46,14 @@ public class AnswerQuestionController {
 
     @GetMapping("/search")
     public Page<Question> searchEvents(@RequestParam(value = "what", required = false) String what,
-                                   @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-                                   @RequestParam(value = "size", defaultValue = "20", required = false) int size,
-                                   @Parameter(hidden = true) Pageable pageable) {
+                                       @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+                                       @RequestParam(value = "size", defaultValue = "20", required = false) int size
+    ) {
         if (what == null) {
-            return questionRepository.findAll(pageable);
+            return questionRepository.findAll(PageRequest.of(page, size));
         }
         TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(what);
-        return questionRepository.findBy(criteria, pageable);
+        return questionRepository.findBy(criteria, PageRequest.of(page, size));
     }
 
     @GetMapping("/topic/{topic}")
@@ -205,7 +202,7 @@ public class AnswerQuestionController {
      */
     private boolean matchUserQuestion(String uuid, String questionID) {
         // return true if uuid created question
-        Optional<Question> optional= questionRepository.findById(questionID);
+        Optional<Question> optional = questionRepository.findById(questionID);
         return optional.map(question -> question.getUid().equals(uuid)).orElse(false);
     }
 
@@ -216,7 +213,7 @@ public class AnswerQuestionController {
     private boolean matchExpertAnswer(String uuid, String answerChangedId, Answer answer) {
         if (!answer.get_id().equals(answerChangedId))
             return false;
-        if(!answer.getUid().equals(uuid))
+        if (!answer.getUid().equals(uuid))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied", null);
         return answer.getUid().equals(uuid);
     }

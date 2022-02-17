@@ -36,8 +36,17 @@ public class ExpertController {
     }
 
     @GetMapping
-    public List<Expert> getWithLimit(@RequestParam(name = "limit", defaultValue = "20") int limit) {
-        return expertRepository.findAll(PageRequest.of(0, limit)).getContent();
+    public List<Expert> getWithLimit(@RequestParam(name = "limit", defaultValue = "20") int limit,
+                                     @RequestParam(name = "sortBy", required = false) String sortBy,
+                                     @RequestParam(name = "asc", defaultValue = "true") boolean asc) {
+        Sort sort = Sort.by("score");
+        if (sortBy != null) {
+            sort = Sort.by(sortBy);
+            if (!asc) {
+                sort.descending();
+            }
+        }
+        return expertRepository.findAll(PageRequest.of(0, limit, sort)).getContent();
     }
 
     @GetMapping("/search")
@@ -45,14 +54,23 @@ public class ExpertController {
                                       @RequestParam(value = "where", required = false) String where,
                                       @RequestParam(value = "radius", required = false, defaultValue = "5") @Parameter(description = "radius is kilometer") @NumberFormat double radius,
                                       @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-                                      @RequestParam(value = "size", defaultValue = "20", required = false) int size) {
+                                      @RequestParam(value = "size", defaultValue = "20", required = false) int size,
+                                      @RequestParam(name = "sortBy", required = false) String sortBy,
+                                      @RequestParam(name = "asc", defaultValue = "true") boolean asc) {
 
+        Sort sort = Sort.by("score");
+        if (sortBy != null) {
+            sort = Sort.by(sortBy);
+            if (!asc) {
+                sort.descending();
+            }
+        }
         // return all if blank
         if (what == null && where == null) {
-            return expertRepository.findAll(PageRequest.of(page, size));
+            return expertRepository.findAll(PageRequest.of(page, size, sort));
         }
 
-        return expertCustomRepository.searchByLocationAndText(what, where, radius, PageRequest.of(page, size));
+        return expertCustomRepository.searchByLocationAndText(what, where, radius, PageRequest.of(page, size, sort));
     }
 
     @GetMapping(path = "/page")
