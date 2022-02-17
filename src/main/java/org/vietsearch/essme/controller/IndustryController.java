@@ -48,6 +48,12 @@ public class IndustryController {
         return industryRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Industry not found"));
     }
 
+    @GetMapping("/{id}/sub")
+    public List<Industry> getSubIndustry(@PathVariable String id) {
+        Industry industry = industryRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Industry not found"));
+        return industryRepository.findBySourceParentId(industry.getSourceId());
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Industry createIndustry(@Valid @RequestBody Industry industry) {

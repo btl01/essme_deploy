@@ -10,4 +10,5 @@ public interface IndustryRepository extends MongoRepository<Industry, String> {
     List<Industry> findBy(TextCriteria criteria);
     List<Industry> findByNameStartsWithIgnoreCase(String name);
     Industry findByNameIgnoreCase(String name);
+    List<Industry> findBySourceParentId(String id);
 }
