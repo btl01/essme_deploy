@@ -36,6 +36,10 @@ public class AcademicRankController {
 
     @GetMapping("/search")
     public List<AcademicRank> searchAcademicRank(@RequestParam(name = "text") String text) {
+        if (text == null || "".equals(text)) {
+            return rankRepository.findAll();
+        }
+
         List<AcademicRank> list = rankRepository.findBy(
                 TextCriteria.forDefaultLanguage().caseSensitive(false).matchingPhrase(text)
         );

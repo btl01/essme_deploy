@@ -39,6 +39,9 @@ public class DisciplineController {
 
     @GetMapping("/search")
     public List<Discipline> searchDisciplines(@RequestParam("text") String text) {
+        if (text == null || "".equals(text)) {
+            return disciplineRepository.findAll();
+        }
         TextCriteria criteria = TextCriteria.forDefaultLanguage().caseSensitive(false).matchingPhrase(text);
         List<Discipline> list = disciplineRepository.findBy(criteria);
         if (list.isEmpty()) {

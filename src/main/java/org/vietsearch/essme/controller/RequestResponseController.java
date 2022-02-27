@@ -74,11 +74,14 @@ public class RequestResponseController {
 
     @GetMapping("/{id}")
     public Request getRequestById(@PathVariable("id") String id) {
-        return requestRepository.findById(id).get();
+        return requestRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found"));
     }
 
     @GetMapping("/search")
     public List<Request> searchRequests(@RequestParam("text") String text) {
+        if (text == null || "".equals(text)) {
+            return requestRepository.findAll();
+        }
         TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(text);
         return requestRepository.findBy(criteria);
     }

@@ -49,7 +49,7 @@ public class AnswerQuestionController {
                                        @RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                        @RequestParam(value = "size", defaultValue = "20", required = false) int size
     ) {
-        if (what == null) {
+        if (what == null || "".equals(what)) {
             return questionRepository.findAll(PageRequest.of(page, size));
         }
         TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(what);

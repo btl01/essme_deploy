@@ -17,6 +17,7 @@ import org.vietsearch.essme.service.expert.ExpertService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/experts")
@@ -65,6 +66,14 @@ public class ExpertController {
                 sort.descending();
             }
         }
+        if (Objects.equals(what, "")) {
+            what = null;
+        }
+
+        if (Objects.equals(where, "")) {
+            where = null;
+        }
+
         // return all if blank
         if (what == null && where == null) {
             return expertRepository.findAll(PageRequest.of(page, size, sort));

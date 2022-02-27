@@ -23,6 +23,9 @@ public class UniversityController {
 
     @GetMapping("/search")
     public List<University> searchUniversities(@RequestParam("name") String name) {
+        if (name == null || "".equals(name)) {
+            return universityRepository.findAll();
+        }
         TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(name);
         List<University> list = universityRepository.findBy(criteria);
         if (list.isEmpty())

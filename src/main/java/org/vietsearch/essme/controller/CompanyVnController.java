@@ -38,6 +38,9 @@ public class CompanyVnController {
 
     @GetMapping(path = "/search")
     public List<CompanyVn> searchByName(@RequestParam(name = "text") String text) {
+        if (text == null || "".equals(text)) {
+            return companyVnRepository.findAll();
+        }
         return companyVnRepository.findBy(
                 TextCriteria.forDefaultLanguage().caseSensitive(false).matchingPhrase(text)
         );

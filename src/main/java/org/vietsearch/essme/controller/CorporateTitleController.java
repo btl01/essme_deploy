@@ -22,6 +22,9 @@ public class CorporateTitleController {
 
     @GetMapping("/search")
     public List<Corporate> search(@RequestParam("name") String name) {
+        if (name == null || "".equals(name)) {
+            return corporateRepository.findAll();
+        }
         TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(name);
         List<Corporate> list = corporateRepository.findBy(criteria);
         if (list.isEmpty())

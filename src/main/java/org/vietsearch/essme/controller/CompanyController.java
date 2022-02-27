@@ -47,6 +47,9 @@ public class CompanyController {
 
     @GetMapping("/search")
     public List<Company> searchCompanies(@RequestParam("text") String text) {
+        if (text == null || "".equals(text)) {
+            return companyRepository.findAll();
+        }
         List<Company> list = companyRepository.findBy(
                 TextCriteria.forDefaultLanguage().caseSensitive(false).matchingPhrase(text)
         );
