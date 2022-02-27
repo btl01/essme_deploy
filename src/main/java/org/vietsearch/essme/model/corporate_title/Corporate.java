@@ -1,14 +1,13 @@
 package org.vietsearch.essme.model.corporate_title;
 
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @Document("corporate_titles")
@@ -22,7 +21,6 @@ public class Corporate {
 	private List<String> types;
 
 	@JsonProperty("names")
-	@NotBlank
 	private Names names;
 
 	@JsonProperty("synonyms")

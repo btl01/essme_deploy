@@ -18,5 +18,5 @@ public interface AcademicRankRepository extends MongoRepository<AcademicRank, St
             "]}")
     List<AcademicRank> findByNameOrSynonymsStartsWithIgnoreCase(String name);
 
-    Optional<AcademicRank> findByNameIgnoreCase(String name);
+    AcademicRank findByNameIgnoreCase(String name);
 }

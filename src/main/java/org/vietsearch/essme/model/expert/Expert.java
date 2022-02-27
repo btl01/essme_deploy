@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @Document(collection = "experts_vn")
@@ -17,15 +18,15 @@ public class Expert {
     @JsonProperty(value = "_id", access = JsonProperty.Access.READ_ONLY)
     private String _id;
 
-    @JsonProperty("image")
-    private String image;
+    @JsonProperty("img")
+    private String img;
 
     @Field(name = "other link")
     @JsonProperty("other_link")
     private String otherLink;
 
     @JsonProperty("address")
-    private String address;
+    private List<String> address;
 
     @JsonProperty("gender")
     private Integer gender;

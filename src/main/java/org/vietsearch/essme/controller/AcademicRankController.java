@@ -60,14 +60,22 @@ public class AcademicRankController {
     @ResponseStatus(HttpStatus.OK)
     public AcademicRank updateById(@PathVariable("_id") String _id, @RequestBody AcademicRank academicRank) {
         rankRepository.findById(_id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rank not found"));
-        checkExistsByName(academicRank.getName());
-        academicRank.set_id(_id);
-        return rankRepository.save(academicRank);
+        AcademicRank optional = rankRepository.findByNameIgnoreCase(academicRank.getName());
+        if (optional == null) {
+            academicRank.set_id(_id);
+            return rankRepository.save(academicRank);
+        } else {
+            if (Objects.equals(optional.get_id(), _id)) {
+                academicRank.set_id(_id);
+                return rankRepository.save(academicRank);
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rank name already exists");
+            }
+        }
     }
 
     private void checkExistsByName(String name) {
-        if (rankRepository.findByNameIgnoreCase(name).isPresent())
+        if (rankRepository.findByNameIgnoreCase(name) != null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is already used");
-
     }
 }

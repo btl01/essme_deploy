@@ -1,6 +1,5 @@
 package org.vietsearch.essme.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.vietsearch.essme.filter.AuthenticatedRequest;
-import org.vietsearch.essme.model.expert.Expert;
 import org.vietsearch.essme.repository.RequestResponseRepository;
 import org.vietsearch.essme.model.request_response.*;
 import org.vietsearch.essme.repository.UserRepository;
@@ -38,6 +36,29 @@ public class RequestResponseController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @SecurityRequirement(name = "bearer-key")
+    public Request addRequest(AuthenticatedRequest httpRequest, @Valid @RequestBody Request customRequest) {
+        customRequest.setUid(httpRequest.getUserId());
+        requestRepository.save(customRequest);
+        return requestRepository.save(customRequest);
+    }
+
+    @PostMapping("/{requestId}/responses")
+    @ResponseStatus(HttpStatus.CREATED)
+    @SecurityRequirement(name = "bearer-key")
+    public Request addResponse(AuthenticatedRequest httpRequest, @PathVariable("requestId") String requestID, @Valid @RequestBody Response response) {
+        Request request = requestRepository.findById(requestID).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found", null));
+
+        if (request.getResponses() == null)
+            request.setResponses(new ArrayList<>());
+
+        request.setUid(httpRequest.getUserId());
+        request.getResponses().add(response);
+        return requestRepository.save(request);
+    }
 
 
     @GetMapping
@@ -112,18 +133,6 @@ public class RequestResponseController {
         }
     }
 
-    @PostMapping("/{requestId}/responses")
-    @ResponseStatus(HttpStatus.CREATED)
-    @SecurityRequirement(name = "bearer-key")
-    public Request addResponse(AuthenticatedRequest authenticatedRequest, @PathVariable("requestId") String requestId, @Valid @RequestBody Response response) {
-        Request request = requestRepository.findById(requestId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found", null));
-        if (request.getResponses() == null)
-            request.setResponses(new ArrayList<>());
-        response.setUid(authenticatedRequest.getUserId());
-        request.getResponses().add(response);
-        return requestRepository.save(request);
-    }
-
     @GetMapping("/{requestId}/responses")
     public List<Response> getResponse(@PathVariable("requestId") String requestId) {
         Request request = requestRepository.findById(requestId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found", null));
@@ -186,7 +195,7 @@ public class RequestResponseController {
     private boolean matchExpertResponse(String uuid, String responseChangedId, Response response) {
         if (!response.get_id().equals(responseChangedId))
             return false;
-        if(!response.getUid().equals(uuid))
+        if (!response.getUid().equals(uuid))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied", null);
         return response.getUid().equals(uuid);
     }
@@ -225,7 +234,7 @@ public class RequestResponseController {
     @PutMapping("/direct/{requestId}")
     @ResponseStatus(HttpStatus.OK)
     @SecurityRequirement(name = "bearer-key")
-    public DirectRequest updateDirectRequest(AuthenticatedRequest authenticatedRequest,@PathVariable("requestId") String id, @Valid @RequestBody DirectRequest request) {
+    public DirectRequest updateDirectRequest(AuthenticatedRequest authenticatedRequest, @PathVariable("requestId") String id, @Valid @RequestBody DirectRequest request) {
         // FE side save createAt value then add into request
         request.setLastUpdatedAt(new Date());
         request.set_id(id);
@@ -235,7 +244,7 @@ public class RequestResponseController {
     @DeleteMapping("/direct/{requestId}")
     @ResponseStatus(HttpStatus.OK)
     @SecurityRequirement(name = "bearer-key")
-    public String deleteDirectRequest(AuthenticatedRequest authenticatedRequest,@PathVariable("requestId") String id) {
+    public String deleteDirectRequest(AuthenticatedRequest authenticatedRequest, @PathVariable("requestId") String id) {
         directRequestRepository.deleteById(id);
         return "Deleted request: " + id;
     }
