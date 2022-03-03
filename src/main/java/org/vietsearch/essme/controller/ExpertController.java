@@ -59,7 +59,7 @@ public class ExpertController {
                                       @RequestParam(name = "sortBy", required = false) String sortBy,
                                       @RequestParam(name = "asc", defaultValue = "true") boolean asc) {
 
-        Sort sort = Sort.by("score");
+        Sort sort = Sort.by("degree index");
         if (sortBy != null) {
             sort = Sort.by(sortBy);
             if (!asc) {
