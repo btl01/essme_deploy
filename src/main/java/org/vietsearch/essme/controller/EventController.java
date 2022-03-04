@@ -3,12 +3,12 @@ package org.vietsearch.essme.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.vietsearch.essme.model.event.Event;
-import org.vietsearch.essme.repository.EventRepository;
+import org.vietsearch.essme.repository.event.EventCustomRepository;
+import org.vietsearch.essme.repository.event.EventRepository;
 
 import java.util.List;
 
@@ -16,18 +16,23 @@ import java.util.List;
 @RequestMapping("/api/events")
 public class EventController {
     @Autowired
-    private EventRepository eventRepository;
+    EventRepository eventRepository;
+
+    @Autowired
+    EventCustomRepository eventCustomRepository;
+
+    @GetMapping("/location")
+    public List<Event> searchByLocation(@RequestParam String location) {
+        return eventRepository.findByLocationContainsIgnoreCase(location);
+    }
 
     @GetMapping("/search")
     public Page<Event> searchEvents(@RequestParam(value = "what", required = false) String what,
+                                    @RequestParam(value = "where", required = false) String where,
                                     @RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                     @RequestParam(value = "size", defaultValue = "20", required = false) int size
     ) {
-        if (what == null || "".equals(what)) {
-            return eventRepository.findAll(PageRequest.of(page, size));
-        }
-        TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(what);
-        return eventRepository.findBy(criteria, PageRequest.of(page, size));
+        return eventCustomRepository.searchByTextAndLocation(what, where, PageRequest.of(page, size));
     }
 
     @GetMapping

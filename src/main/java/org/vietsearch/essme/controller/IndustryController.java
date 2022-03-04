@@ -73,19 +73,26 @@ public class IndustryController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Industry update(@PathVariable("id") String id, @Valid @RequestBody Industry industry) {
-        industryRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Industry not found"));
+    public Industry update(@PathVariable("id") String id,
+                           @Valid @RequestBody Industry industry) {
+
+        // get old industry
+        Industry oldIndustry = industryRepository.findById(id).
+                orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Industry not found"));
+
+        // check industryName exist
         Industry optional = industryRepository.findByNameIgnoreCase(industry.getName());
         if (optional == null) {
             industry.set_id(id);
             return industryRepository.save(industry);
+        }
+
+        // check if is one industry
+        if (Objects.equals(optional.get_id(), id)) {
+            industry.set_id(id);
+            return industryRepository.save(industry);
         } else {
-            if (Objects.equals(optional.get_id(), id)) {
-                industry.set_id(id);
-                return industryRepository.save(industry);
-            } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Industry name already exists");
-            }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Industry name already exists");
         }
     }
 

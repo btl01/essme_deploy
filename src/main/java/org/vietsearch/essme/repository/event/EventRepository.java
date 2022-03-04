@@ -1,4 +1,4 @@
-package org.vietsearch.essme.repository;
+package org.vietsearch.essme.repository.event;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,4 +12,6 @@ public interface EventRepository extends MongoRepository<Event, String> {
     List<Event> findBy(TextCriteria criteria);
 
     Page<Event> findBy(TextCriteria criteria, Pageable pageable);
+
+    List<Event> findByLocationContainsIgnoreCase(String location);
 }

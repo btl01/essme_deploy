@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.vietsearch.essme.model.homepage.Field;
 import org.vietsearch.essme.model.homepage.Footer;
 import org.vietsearch.essme.model.homepage.Homepage;
-import org.vietsearch.essme.repository.EventRepository;
+import org.vietsearch.essme.repository.event.EventRepository;
 import org.vietsearch.essme.repository.HomepageRepository;
 import org.vietsearch.essme.repository.NewsRepository;
 import org.vietsearch.essme.service.expert.ExpertService;
