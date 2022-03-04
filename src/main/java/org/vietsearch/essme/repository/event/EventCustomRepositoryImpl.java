@@ -1,18 +1,17 @@
 package org.vietsearch.essme.repository.event;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Circle;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.vietsearch.essme.model.event.Event;
 import org.vietsearch.essme.utils.OpenStreetMapUtils;
 
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -28,7 +27,7 @@ public class EventCustomRepositoryImpl implements EventCustomRepository {
 
     @Override
     public Page<Event> searchByTextAndLocation(String text, String location, Pageable pageable) {
-        Query query = new Query();
+        Query query = new Query().with(pageable);
 
         if (text != null && !"".equals(text)) {
             TextCriteria criteria = TextCriteria.forDefaultLanguage().caseSensitive(false).matchingPhrase(text);
@@ -42,8 +41,10 @@ public class EventCustomRepositoryImpl implements EventCustomRepository {
             query.addCriteria(new Criteria().orOperator(isContain, isNear));
         }
 
-        System.out.println(query);
-        List<Event> list = mongoTemplate.find(query, Event.class);
-        return new PageImpl<>(list, pageable, list.size());
+        return PageableExecutionUtils.getPage(
+                mongoTemplate.find(query, Event.class),
+                pageable,
+                () -> mongoTemplate.count(query.limit(-1).skip(-1), Event.class)
+        );
     }
 }

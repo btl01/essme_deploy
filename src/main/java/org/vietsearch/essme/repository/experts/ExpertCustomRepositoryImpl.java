@@ -1,7 +1,7 @@
 package org.vietsearch.essme.repository.experts;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Circle;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
-
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.vietsearch.essme.model.expert.Expert;
 import org.vietsearch.essme.utils.OpenStreetMapUtils;
@@ -39,9 +39,9 @@ public class ExpertCustomRepositoryImpl implements ExpertCustomRepository {
     }
 
     @Override
-    public PageImpl searchByLocationAndText(String what, String where, double radius, Pageable pageable) {
-        Query query = new Query();
-        radius = radius/6378.0;
+    public Page<Expert> searchByLocationAndText(String what, String where, double radius, Pageable pageable) {
+        Query query = new Query().with(pageable);
+        radius = radius / 6378.0;
 
         // text search
         if (what != null) {
@@ -55,9 +55,11 @@ public class ExpertCustomRepositoryImpl implements ExpertCustomRepository {
             query.addCriteria(Criteria.where("location.features.geometry").withinSphere(new Circle(coords.get("lon"), coords.get("lat"), radius)));
         }
 
-
-        List<Expert> list = mongoTemplate.find(query, Expert.class);
-        return new PageImpl<>(list, pageable, list.size() );
+        return PageableExecutionUtils.getPage(
+                mongoTemplate.find(query, Expert.class),
+                pageable,
+                () -> mongoTemplate.count(query.limit(-1).skip(-1), Expert.class)
+        );
     }
 
 }
