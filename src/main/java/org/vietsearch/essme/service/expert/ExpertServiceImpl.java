@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ExpertServiceImpl implements ExpertService{
+public class ExpertServiceImpl implements ExpertService {
 
     @Autowired
     ExpertRepository expertRepository;
@@ -20,10 +20,18 @@ public class ExpertServiceImpl implements ExpertService{
         List<Expert> list = expertRepository.findByOrderByScoreDesc();
         List<String> fields = new ArrayList<>();
         for (Expert expert : list) {
-            if (!fields.contains(expert.getResearchArea())) {
-                fields.add(expert.getResearchArea());
+            for (String researchItem : expert.getResearchArea()) {
+                boolean hasResearchArea = fields.contains(researchItem);
+                boolean hasExpert = result.contains(expert);
+
+                if (hasResearchArea) break;
+                if (hasExpert) break;
+
+                // process
+                fields.add(researchItem);
                 result.add(expert);
-                if (result.size() == 9) break;
+                if (result.size() >= 9)
+                    return result;
             }
         }
         return result;
