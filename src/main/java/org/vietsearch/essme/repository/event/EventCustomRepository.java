@@ -4,6 +4,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.vietsearch.essme.model.event.Event;
 
+import java.util.List;
+
 public interface EventCustomRepository {
-    Page<Event> searchByTextAndLocation(String text, String location, Pageable pageable);
+    Page<Event> searchByTextAndLocationAndType(String text, String location, List<String> types, Pageable pageable);
+
+    List<Object> countType();
 }

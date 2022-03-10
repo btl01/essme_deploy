@@ -1,4 +1,4 @@
-package org.vietsearch.essme.repository;
+package org.vietsearch.essme.repository.news;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

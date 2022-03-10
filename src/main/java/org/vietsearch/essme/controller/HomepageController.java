@@ -8,7 +8,7 @@ import org.vietsearch.essme.model.homepage.Footer;
 import org.vietsearch.essme.model.homepage.Homepage;
 import org.vietsearch.essme.repository.event.EventRepository;
 import org.vietsearch.essme.repository.HomepageRepository;
-import org.vietsearch.essme.repository.NewsRepository;
+import org.vietsearch.essme.repository.news.NewsRepository;
 import org.vietsearch.essme.service.expert.ExpertService;
 
 import javax.annotation.Resource;

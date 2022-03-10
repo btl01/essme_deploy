@@ -26,13 +26,19 @@ public class EventController {
         return eventRepository.findByLocationContainsIgnoreCase(location);
     }
 
+    @GetMapping("/type")
+    public List<Object> getAllType() {
+        return eventCustomRepository.countType();
+    }
+
     @GetMapping("/search")
     public Page<Event> searchEvents(@RequestParam(value = "what", required = false) String what,
                                     @RequestParam(value = "where", required = false) String where,
+                                    @RequestParam(value = "types", required = false) List<String> types,
                                     @RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                     @RequestParam(value = "size", defaultValue = "20", required = false) int size
     ) {
-        return eventCustomRepository.searchByTextAndLocation(what, where, PageRequest.of(page, size));
+        return eventCustomRepository.searchByTextAndLocationAndType(what, where, types, PageRequest.of(page, size));
     }
 
     @GetMapping

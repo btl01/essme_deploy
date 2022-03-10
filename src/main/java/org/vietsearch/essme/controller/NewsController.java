@@ -3,12 +3,12 @@ package org.vietsearch.essme.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.vietsearch.essme.model.News;
-import org.vietsearch.essme.repository.NewsRepository;
+import org.vietsearch.essme.repository.news.NewsCustomRepository;
+import org.vietsearch.essme.repository.news.NewsRepository;
 
 import java.util.List;
 
@@ -16,18 +16,23 @@ import java.util.List;
 @RequestMapping("/api/news")
 public class NewsController {
     @Autowired
-    private NewsRepository newsRepository;
+    NewsRepository newsRepository;
+
+    @Autowired
+    NewsCustomRepository newsCustomRepository;
 
     @GetMapping("/search")
     public Page<News> searchEvents(@RequestParam(value = "what", required = false) String what,
+                                   @RequestParam(value = "tag", required = false) String tag,
                                    @RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                    @RequestParam(value = "size", defaultValue = "20", required = false) int size
     ) {
-        if (what == null || "".equals(what)) {
-            return newsRepository.findAll(PageRequest.of(page, size));
-        }
-        TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingPhrase(what);
-        return newsRepository.findBy(criteria, PageRequest.of(page, size));
+        return newsCustomRepository.findByTextSearchAndTag(what, tag, PageRequest.of(page, size));
+    }
+
+    @GetMapping("/tags")
+    public List<String> getAllTags() {
+        return newsCustomRepository.findDistinctTags();
     }
 
     @GetMapping
