@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.vietsearch.essme.filter.AuthenticatedRequest;
 import org.vietsearch.essme.model.expert.Expert;
+import org.vietsearch.essme.model.expert.Location;
 import org.vietsearch.essme.repository.experts.ExpertCustomRepositoryImpl;
 import org.vietsearch.essme.repository.experts.ExpertRepository;
 import org.vietsearch.essme.service.expert.ExpertService;
+import org.vietsearch.essme.utils.OpenStreetMapUtils;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -29,7 +31,7 @@ public class ExpertController {
     private ExpertCustomRepositoryImpl expertCustomRepository;
 
     @Autowired
-    ExpertService expertService;
+    private ExpertService expertService;
 
     @GetMapping("/top")
     public List<Expert> getTop() {
@@ -114,6 +116,13 @@ public class ExpertController {
         }
         expert.setUid(uuid);
         expert.set_id(id);
+
+        // add location
+        if (expert.getAddress() != null){
+            Location location = OpenStreetMapUtils.getInstance().addressToLocation(expert.getAddress().get(0));
+            expert.setLocation(location);
+        }
+
         return expertRepository.save(expert);
     }
 
@@ -121,6 +130,13 @@ public class ExpertController {
     @ResponseStatus(HttpStatus.CREATED)
     public Expert createUser(AuthenticatedRequest request, @Valid @RequestBody Expert expert) {
         expert.setUid(request.getUserId());
+
+        // add location
+        if (expert.getAddress() != null){
+            Location location = OpenStreetMapUtils.getInstance().addressToLocation(expert.getAddress().get(0));
+            expert.setLocation(location);
+        }
+
         return expertRepository.save(expert);
     }
 
