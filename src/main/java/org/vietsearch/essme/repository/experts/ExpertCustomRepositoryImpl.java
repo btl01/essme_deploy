@@ -3,11 +3,10 @@ package org.vietsearch.essme.repository.experts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Circle;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.Fields;
-import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
@@ -25,14 +24,12 @@ public class ExpertCustomRepositoryImpl implements ExpertCustomRepository {
     private MongoTemplate mongoTemplate;
 
     public List<Object> getNumberOfExpertsInEachField() {
-        GroupOperation groupOperation = new GroupOperation(Fields.fields("research area"));
-        GroupOperation.GroupOperationBuilder builder = groupOperation.count();
-        groupOperation = builder.as("quantity");
         return mongoTemplate.aggregate(
                 Aggregation.newAggregation(
-                        groupOperation
-                )
-                ,
+                        Aggregation.unwind("research area"),
+                        Aggregation.group("research area").count().as("quantity"),
+                        Aggregation.sort(Sort.Direction.ASC, "_id")
+                ),
                 Expert.class,
                 Object.class
         ).getMappedResults();

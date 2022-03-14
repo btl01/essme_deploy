@@ -55,7 +55,7 @@ public class Expert {
     @JsonProperty("company")
     private String company;
 
-    @JsonProperty("location")
+    @JsonProperty(value = "location", access = JsonProperty.Access.READ_ONLY)
     private Location location;
 
     @NotBlank

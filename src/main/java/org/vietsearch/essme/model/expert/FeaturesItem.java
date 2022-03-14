@@ -11,7 +11,4 @@ public class FeaturesItem {
 
     @JsonProperty("type")
     private String type = "Feature";
-
-    @JsonProperty("properties")
-    private Properties properties;
 }
