@@ -110,8 +110,8 @@ public class ExpertController {
     @ResponseStatus(HttpStatus.OK)
     public Expert update(AuthenticatedRequest request, @PathVariable("id") String id, @Valid @RequestBody Expert expert) {
         String uuid = request.getUserId();
-        expertRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expert not found"));
-        if (!matchExpert(uuid, id)) {
+        Expert expertDB = expertRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expert not found"));
+        if (!matchExpert(uuid, expertDB.getUid())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied", null);
         }
         expert.setUid(uuid);
@@ -144,9 +144,10 @@ public class ExpertController {
     @ResponseStatus(HttpStatus.OK)
     public void delete(AuthenticatedRequest authenticatedRequest, @PathVariable("id") String id) {
         String uuid = authenticatedRequest.getUserId();
+        Expert expertDB = expertRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expert not found"));
         if (!expertRepository.existsById(id))
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        if (!matchExpert(uuid, id)) {
+        if (!matchExpert(uuid, expertDB.getUid())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied", null);
         }
         expertRepository.deleteById(id);

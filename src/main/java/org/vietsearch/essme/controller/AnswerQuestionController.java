@@ -81,11 +81,13 @@ public class AnswerQuestionController {
     public Question updateQuestion(AuthenticatedRequest request, @PathVariable("id") String id, @Valid @RequestBody Question question) {
         String uuid = request.getUserId();
         if (questionRepository.existsById(id)) {
+            Question ques = questionRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found", null));
             // check id
             if (!matchUserQuestion(uuid, id)) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied", null);
             }
             // update
+            question.setCreatedAt(ques.getCreatedAt());
             question.set_id(id);
             question.setUid(uuid);
             questionRepository.save(question);
@@ -155,6 +157,7 @@ public class AnswerQuestionController {
             for (Answer answer1 : question.getAnswers()) {
                 if (matchExpertAnswer(uuid, answerId, answer1)) {
                     answer1.setUid(uuid);
+                    answer1.setCreatedAt(answer.getCreatedAt());
                     answer1.setExpertId(answer.getExpertId());
                     answer1.setAnswer(answer.getAnswer());
                     answer1.setUpdatedAt(new Date());

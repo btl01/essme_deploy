@@ -6,6 +6,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import javax.validation.constraints.NotBlank;
+
 @Data
 @Document("users")
 public class User {
@@ -15,10 +17,12 @@ public class User {
 
     @JsonProperty("email")
     @Field("email")
+    @NotBlank(message = "{vi=\"nội dung trống\", en=\"content is empty\"}")
     String email;
 
     @JsonProperty("displayName")
     @Field("displayName")
+    @NotBlank(message = "{vi=\"nội dung trống\", en=\"content is empty\"}")
     String displayName;
 
     @JsonProperty("photoURL")
