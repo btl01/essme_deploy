@@ -14,6 +14,9 @@ public class Customer {
     @JsonProperty(value = "_id", access = JsonProperty.Access.READ_ONLY)
     private String _id;
 
+    @JsonProperty("uid")
+    private String uid;
+
     @JsonProperty("gender")
     private Integer gender;
 
