@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.vietsearch.essme.filter.AuthenticatedRequest;
-import org.vietsearch.essme.model.event.Event;
 import org.vietsearch.essme.model.user.User;
 import org.vietsearch.essme.repository.UserRepository;
 
@@ -41,12 +40,12 @@ public class UserController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public User update(AuthenticatedRequest request,@PathVariable String id, @RequestBody User user) {
+    public User update(AuthenticatedRequest request, @PathVariable String id, @RequestBody User data) {
         String uuid = request.getUserId();
-        userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
-        user.setUid(id);
+        User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        user.setRole(data.getRole());
         if (!matchUser(uuid, id)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied", null);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied");
         }
         return userRepository.save(user);
     }
@@ -55,7 +54,7 @@ public class UserController {
     public void deleteUserById(AuthenticatedRequest request,@PathVariable String id) {
         String uuid = request.getUserId();
         if (!matchUser(uuid, id)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied", null);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied");
         }
         userRepository.deleteById(id);
     }

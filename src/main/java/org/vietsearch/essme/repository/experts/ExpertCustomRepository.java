@@ -2,7 +2,6 @@ package org.vietsearch.essme.repository.experts;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.Query;
 import org.vietsearch.essme.model.expert.Expert;
 
 import java.util.List;
@@ -14,4 +13,6 @@ public interface ExpertCustomRepository {
 //    Page<Expert> searchByLocationAndText(String what, String where, double radius);
 
     Page<Expert> searchByLocationAndText(String what, String where, double radius, Pageable pageable);
+
+    List<Expert> relateExpertByField(String field, int limit);
 }

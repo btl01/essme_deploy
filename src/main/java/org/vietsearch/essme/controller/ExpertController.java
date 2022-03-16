@@ -52,6 +52,11 @@ public class ExpertController {
         return expertRepository.findAll(PageRequest.of(0, limit, sort)).getContent();
     }
 
+    @GetMapping("/suggest")
+    public List<Expert> getRelateByField(@RequestParam String field, @RequestParam(defaultValue = "20") int limit) {
+        return expertCustomRepository.relateExpertByField(field, limit);
+    }
+
     @GetMapping("/search")
     public Page<Expert> searchExperts(@RequestParam(value = "what", required = false) String what,
                                       @RequestParam(value = "where", required = false) String where,

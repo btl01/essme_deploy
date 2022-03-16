@@ -12,16 +12,25 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+import org.vietsearch.essme.model.ResearchArea;
 import org.vietsearch.essme.model.expert.Expert;
+import org.vietsearch.essme.repository.ResearchAreaRepository;
 import org.vietsearch.essme.utils.OpenStreetMapUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Repository
 public class ExpertCustomRepositoryImpl implements ExpertCustomRepository {
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    ResearchAreaRepository researchAreaRepository;
 
     public List<Object> getNumberOfExpertsInEachField() {
         return mongoTemplate.aggregate(
@@ -57,6 +66,25 @@ public class ExpertCustomRepositoryImpl implements ExpertCustomRepository {
                 pageable,
                 () -> mongoTemplate.count(query.limit(-1).skip(-1), Expert.class)
         );
+    }
+
+    @Override
+    public List<Expert> relateExpertByField(String field, int limit) {
+        Optional<ResearchArea> optional = researchAreaRepository.findByNameVnOrNameEn(field, field);
+        if (optional.isEmpty()) {
+            return Collections.emptyList();
+        }
+        ResearchArea researchArea = optional.get();
+
+        Query query = new Query().limit(limit);
+
+        List<Pattern> patternList = researchArea.getKeys().stream()
+                .map(item -> Pattern.compile(item, Pattern.CASE_INSENSITIVE))
+                .collect(Collectors.toList());
+
+        query.addCriteria(Criteria.where("research area").elemMatch(new Criteria().in(patternList)));
+
+        return mongoTemplate.find(query, Expert.class);
     }
 
 }
