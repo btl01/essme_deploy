@@ -53,8 +53,18 @@ public class ExpertController {
     }
 
     @GetMapping("/suggest")
-    public List<Expert> getRelateByField(@RequestParam String field, @RequestParam(defaultValue = "20") int limit) {
-        return expertCustomRepository.relateExpertByField(field, limit);
+    public List<Expert> getRelateByField(@RequestParam String field,
+                                         @RequestParam(defaultValue = "20") int limit,
+                                         @RequestParam(defaultValue = "0") int skip) {
+        return expertCustomRepository.relatedExpertsByField(field, limit, skip);
+    }
+
+    @GetMapping("/{id}/related")
+    public List<Expert> getRelatedExpertsById(@PathVariable String id,
+                                          @RequestParam(defaultValue = "20") int limit,
+                                          @RequestParam(defaultValue = "0") int skip) {
+        Expert expert = expertRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return expertCustomRepository.relatedExpertsByExpert(expert, limit, skip);
     }
 
     @GetMapping("/search")
@@ -97,8 +107,7 @@ public class ExpertController {
         Sort sort = Sort.by(sortAttr);
         sort = desc ? sort.descending() : sort.ascending();
 
-        Page<Expert> expertPage = expertRepository.findAll(PageRequest.of(page, size, sort));
-        return expertPage;
+        return expertRepository.findAll(PageRequest.of(page, size, sort));
     }
 
     @GetMapping("/{id}")
