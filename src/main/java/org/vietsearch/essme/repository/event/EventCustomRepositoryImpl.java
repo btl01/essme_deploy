@@ -29,7 +29,7 @@ public class EventCustomRepositoryImpl implements EventCustomRepository {
     }
 
     @Override
-    public Page<Event> searchByTextAndLocationAndType(String text, String location, List<String> types, Pageable pageable) {
+    public Page<Event> searchEvents(String text, String location, List<String> types, List<String> tags, String lang, Pageable pageable) {
         Query query = new Query().with(pageable);
 
         if (text != null && !"".equals(text)) {
@@ -45,7 +45,13 @@ public class EventCustomRepositoryImpl implements EventCustomRepository {
         }
 
         if (types != null && !types.isEmpty()) {
-            query.addCriteria(Criteria.where("type").all(types));
+            String fieldName = "vi".equals(lang) ? "type_vn" : "type_en";
+            query.addCriteria(Criteria.where(fieldName).all(types));
+        }
+
+        if (tags != null && !tags.isEmpty()) {
+            String fieldName = "vi".equals(lang) ? "tags_vn" : "tags_en";
+            query.addCriteria(Criteria.where(fieldName).all(tags));
         }
 
         return PageableExecutionUtils.getPage(
@@ -56,11 +62,22 @@ public class EventCustomRepositoryImpl implements EventCustomRepository {
     }
 
     @Override
-    public List<Object> countType() {
+    public List<Object> countType(String lang) {
+        String fieldName = "vi".equals(lang) ? "type_vn" : "type_en";
+        return countArrayField(fieldName);
+    }
+
+    @Override
+    public List<Object> countTag(String lang) {
+        String fieldName = "vi".equals(lang) ? "tags_vn" : "tags_en";
+        return countArrayField(fieldName);
+    }
+
+    private List<Object> countArrayField(String fieldName) {
         return mongoTemplate.aggregate(
                 Aggregation.newAggregation(
-                        Aggregation.unwind("type"),
-                        Aggregation.group("type").count().as("quantity"),
+                        Aggregation.unwind(fieldName),
+                        Aggregation.group(fieldName).count().as("quantity"),
                         Aggregation.sort(Sort.Direction.ASC, "_id")
                 ),
                 Event.class,

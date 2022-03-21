@@ -32,8 +32,21 @@ public class Event {
     @JsonProperty("time")
     private String time;
 
-    @JsonProperty("type")
-    private List<String> type;
+    @Field("tags_en")
+    @JsonProperty("tags_en")
+    private List<String> tagsEn;
+
+    @Field("tags_vn")
+    @JsonProperty("tags_vn")
+    private List<String> tagsVn;
+
+    @Field("type_en")
+    @JsonProperty("type_en")
+    private List<String> typeEn;
+
+    @Field("type_vn")
+    @JsonProperty("type_vn")
+    private List<String> typeVn;
 
     @JsonProperty("desc")
     private String desc;

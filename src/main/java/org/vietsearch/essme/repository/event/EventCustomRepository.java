@@ -7,7 +7,9 @@ import org.vietsearch.essme.model.event.Event;
 import java.util.List;
 
 public interface EventCustomRepository {
-    Page<Event> searchByTextAndLocationAndType(String text, String location, List<String> types, Pageable pageable);
+    Page<Event> searchEvents(String text, String location, List<String> types, List<String> tags, String lang, Pageable pageable);
 
-    List<Object> countType();
+    List<Object> countType(String lang);
+
+    List<Object> countTag(String lang);
 }

@@ -27,18 +27,25 @@ public class EventController {
     }
 
     @GetMapping("/type")
-    public List<Object> getAllType() {
-        return eventCustomRepository.countType();
+    public List<Object> getAllType(@RequestParam(defaultValue = "vi") String lang) {
+        return eventCustomRepository.countType(lang);
+    }
+
+    @GetMapping("/tag")
+    public List<Object> getAllTag(@RequestParam(defaultValue = "vi") String lang) {
+        return eventCustomRepository.countTag(lang);
     }
 
     @GetMapping("/search")
     public Page<Event> searchEvents(@RequestParam(value = "what", required = false) String what,
                                     @RequestParam(value = "where", required = false) String where,
                                     @RequestParam(value = "types", required = false) List<String> types,
+                                    @RequestParam(value = "tags", required = false) List<String> tags,
+                                    @RequestParam(value = "lang", defaultValue = "vi") String lang,
                                     @RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                     @RequestParam(value = "size", defaultValue = "20", required = false) int size
     ) {
-        return eventCustomRepository.searchByTextAndLocationAndType(what, where, types, PageRequest.of(page, size));
+        return eventCustomRepository.searchEvents(what, where, types, tags, lang, PageRequest.of(page, size));
     }
 
     @GetMapping
