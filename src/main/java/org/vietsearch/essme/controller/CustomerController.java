@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.vietsearch.essme.filter.AuthenticatedRequest;
 import org.vietsearch.essme.model.customer.Customer;
+import org.vietsearch.essme.model.user.User;
+import org.vietsearch.essme.repository.UserRepository;
 import org.vietsearch.essme.repository.customer.CustomerRepository;
 
 import javax.validation.Valid;
@@ -19,9 +21,13 @@ public class CustomerController {
     @Autowired
     private final CustomerRepository customerRepository;
 
+    @Autowired
+    private final UserRepository userRepository;
+
     // should use contractor instead of @Autowire
-    public CustomerController(CustomerRepository customerRepository) {
+    public CustomerController(CustomerRepository customerRepository, UserRepository userRepository) {
         this.customerRepository = customerRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping()
@@ -79,6 +85,13 @@ public class CustomerController {
         }
         customerRepository.deleteById(id);
     }
+
+    @GetMapping("/uid/{uid}")
+    public Customer findByUid(@PathVariable("uid") String uid){
+        User user = userRepository.findById(uid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "not found customer"));
+        return customerRepository.findByEmail(user.getEmail()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "not found customer"));
+    }
+
     private boolean matchCustomer(String uuid, String customerChangedId){
         return uuid.equals(customerChangedId);
     }

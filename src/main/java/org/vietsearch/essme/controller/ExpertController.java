@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.vietsearch.essme.filter.AuthenticatedRequest;
 import org.vietsearch.essme.model.expert.Expert;
 import org.vietsearch.essme.model.expert.Location;
+import org.vietsearch.essme.model.user.User;
+import org.vietsearch.essme.repository.UserRepository;
 import org.vietsearch.essme.repository.experts.ExpertCustomRepositoryImpl;
 import org.vietsearch.essme.repository.experts.ExpertRepository;
 import org.vietsearch.essme.service.expert.ExpertService;
@@ -32,6 +34,9 @@ public class ExpertController {
 
     @Autowired
     private ExpertService expertService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/top")
     public List<Expert> getTop() {
@@ -165,6 +170,12 @@ public class ExpertController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied", null);
         }
         expertRepository.deleteById(id);
+    }
+
+    @GetMapping("/uid/{uid}")
+    public Expert findByUid(@PathVariable("uid") String uid ){
+        User user = userRepository.findById(uid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expert not found"));
+        return expertRepository.findByEmail(user.getEmail()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expert not found"));
     }
 
     private boolean matchExpert(String uuid, String expertChangedId) {
