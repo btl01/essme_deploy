@@ -15,6 +15,4 @@ jobs:
       - name: RUN
         run: |-
           kill $(lsof -ti:8100)
-          RUNNER_TRACKING_ID="" && nohup ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8100 &
-          kill $(lsof -ti:8101)
-          RUNNER_TRACKING_ID="" && nohup ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8101 &
+          RUNNER_TRACKING_ID="" && nohup ./mvnw spring-boot:run &
