@@ -88,8 +88,7 @@ public class CustomerController {
 
     @GetMapping("/uid/{uid}")
     public Customer findByUid(@PathVariable("uid") String uid){
-        User user = userRepository.findById(uid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "not found customer"));
-        return customerRepository.findByEmail(user.getEmail()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "not found customer"));
+        return customerRepository.findByUid(uid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "not found customer"));
     }
 
     private boolean matchCustomer(String uuid, String customerChangedId){

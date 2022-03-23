@@ -12,4 +12,5 @@ public interface ExpertRepository extends MongoRepository<Expert, String> {
     // get Expert form firebase uid
     Optional<Expert> findByEmail(String email);
     List<Expert> findByOrderByScoreDesc();
+    Optional<Expert> findByUid(String uid);
 }

@@ -174,8 +174,7 @@ public class ExpertController {
 
     @GetMapping("/uid/{uid}")
     public Expert findByUid(@PathVariable("uid") String uid ){
-        User user = userRepository.findById(uid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expert not found"));
-        return expertRepository.findByEmail(user.getEmail()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expert not found"));
+        return expertRepository.findByUid(uid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expert not found"));
     }
 
     private boolean matchExpert(String uuid, String expertChangedId) {
