@@ -34,7 +34,6 @@ public class Expert {
     @JsonProperty("degree")
     private String degree;
 
-    @NotNull
     private Double score;
 
     @JsonProperty("birth")
