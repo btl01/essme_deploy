@@ -121,8 +121,8 @@ public class ExpertController {
     }
 
     @GetMapping("/field")
-    public List<Object> getNumberOfExpertsInEachField() {
-        return expertCustomRepository.getNumberOfExpertsInEachField();
+    public List<Object> getNumberOfExpertsInEachField(@RequestParam(required = false) String lang) {
+        return expertCustomRepository.getNumberOfExpertsInEachField(lang);
     }
 
     @PutMapping("/{id}")

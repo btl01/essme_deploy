@@ -32,11 +32,15 @@ public class ExpertCustomRepositoryImpl implements ExpertCustomRepository {
     @Autowired
     ResearchAreaRepository researchAreaRepository;
 
-    public List<Object> getNumberOfExpertsInEachField() {
+    public List<Object> getNumberOfExpertsInEachField(String lang) {
+        String fieldName = "research area";
+        if ("en".equals(lang)) {
+            fieldName = "research area en";
+        }
         return mongoTemplate.aggregate(
                 Aggregation.newAggregation(
-                        Aggregation.unwind("research area"),
-                        Aggregation.group("research area").count().as("quantity"),
+                        Aggregation.unwind(fieldName),
+                        Aggregation.group(fieldName).count().as("quantity"),
                         Aggregation.sort(Sort.Direction.ASC, "_id")
                 ),
                 Expert.class,
