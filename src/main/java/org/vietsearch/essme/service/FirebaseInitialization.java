@@ -15,8 +15,8 @@ public class FirebaseInitialization {
     public void initialization() {
 
         try{
-            FileInputStream inputStream = new FileInputStream("src/main/java/org/vietsearch/essme/private-key.json");
-            FirebaseOptions options = new FirebaseOptions.Builder()
+            FileInputStream inputStream = new FileInputStream("src/main/resources/private-key.json");
+            FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(inputStream))
                     .build();
 
