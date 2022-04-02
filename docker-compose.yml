@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  app:
+    image: essme:0.0.1-SNAPSHOT
+    restart: always
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - 8100:8100
