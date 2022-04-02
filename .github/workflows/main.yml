@@ -14,7 +14,9 @@ jobs:
       - uses: actions/checkout@v2
       - name: RUN
         run: |-
-          docker compose down
-          docker rmi essme:0.0.1-SNAPSHOT
           ./mvnw spring-boot:build-image
+          docker compose down
           docker compose up -d
+          docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
+          
+          
