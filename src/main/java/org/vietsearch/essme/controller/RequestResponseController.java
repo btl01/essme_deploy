@@ -3,6 +3,7 @@ package org.vietsearch.essme.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -10,10 +11,16 @@ import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.vietsearch.essme.event.OnSendResponseEvent;
 import org.vietsearch.essme.filter.AuthenticatedRequest;
+import org.vietsearch.essme.model.customer.Customer;
+import org.vietsearch.essme.model.expert.Expert;
+import org.vietsearch.essme.model.request_response.DirectRequest;
+import org.vietsearch.essme.model.request_response.Request;
+import org.vietsearch.essme.model.request_response.Response;
 import org.vietsearch.essme.repository.RequestResponseRepository;
-import org.vietsearch.essme.model.request_response.*;
 import org.vietsearch.essme.repository.UserRepository;
+import org.vietsearch.essme.repository.customer.CustomerRepository;
 import org.vietsearch.essme.repository.direct_request.DirectRequestRepository;
 import org.vietsearch.essme.repository.experts.ExpertRepository;
 
@@ -37,6 +44,12 @@ public class RequestResponseController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -125,7 +138,7 @@ public class RequestResponseController {
 
         // find old request
         Request oldRequest = requestRepository.findById(id).
-                orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Request cannot found!"));
+                orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Request cannot found!"));
 
         // check permission
         if (!matchUserRequest(uuid, id)) {
@@ -260,12 +273,24 @@ public class RequestResponseController {
 
     @PostMapping("/direct")
     @ResponseStatus(HttpStatus.CREATED)
-    public DirectRequest addDirectRequest(@Valid @RequestBody DirectRequest request) {
+    public DirectRequest addDirectRequest(@Valid @RequestBody DirectRequest directRequest) {
         Date createAt = new Date();
-        request.setCreateAt(createAt);
-        request.setLastUpdatedAt(createAt);
-        request.setStatus(DirectRequest.Status.CONSIDERING);
-        return directRequestRepository.insert(request);
+        directRequest.setCreateAt(createAt);
+        directRequest.setLastUpdatedAt(createAt);
+        directRequest.setStatus(DirectRequest.Status.CONSIDERING);
+
+        // get information
+        Customer customer = customerRepository.findById(directRequest.getExpertId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You must be customer"));
+        String expertEmail = directRequest.getExpertEmail();
+        String customerEmail = customer.getEmail();
+
+        // add expertId if exist expert
+        Expert expert = expertRepository.findById(directRequest.getExpertId()).orElse(null);
+        directRequest.setExpertId(expert != null ? expert.get_id() : null);
+
+        // public event
+        eventPublisher.publishEvent(new OnSendResponseEvent(expertEmail, customerEmail));
+        return directRequestRepository.insert(directRequest);
     }
 
     @PutMapping("/direct/{requestId}")
@@ -295,4 +320,8 @@ public class RequestResponseController {
         return "Deleted request: " + id;
     }
 
+    @GetMapping("/uid/{uid}")
+    public Page<Request> getResponseByUid(@PathVariable("uid") String uid, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+        return requestRepository.findByUid(uid, PageRequest.of(page, size));
+    }
 }

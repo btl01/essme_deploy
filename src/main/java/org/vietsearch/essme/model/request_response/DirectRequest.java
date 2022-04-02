@@ -47,6 +47,10 @@ public class DirectRequest {
     @Field("expert_id")
     private String expertId;
 
+    @JsonProperty("expert_email")
+    @Field("expert_email")
+    private String expertEmail;
+
     @JsonProperty("customer_id")
     @Field("customer_id")
     private String customerId;
