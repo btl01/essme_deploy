@@ -20,6 +20,10 @@ public class ResearchArea {
     @JsonProperty("keys")
     private List<String> keys;
 
+	@JsonProperty("key_en")
+	@Field("key_en")
+	private List<String> keyEn;
+
     @JsonProperty("des_vn")
     @Field("des_vn")
     private String desVn;
