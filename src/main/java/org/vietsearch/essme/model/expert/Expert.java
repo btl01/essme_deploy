@@ -51,6 +51,10 @@ public class Expert {
     @JsonProperty("research_area")
     private List<String> researchArea;
 
+    @Field(name = "research area en")
+    @JsonProperty("research_area_en")
+    private List<String> researchAreaEn;
+
     @JsonProperty("company")
     private String company;
 
