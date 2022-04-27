@@ -280,7 +280,7 @@ public class RequestResponseController {
         directRequest.setStatus(DirectRequest.Status.CONSIDERING);
 
         // get information
-        Customer customer = customerRepository.findById(directRequest.getExpertId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You must be customer"));
+        Customer customer = customerRepository.findById(directRequest.getCustomerId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You must be customer"));
         String expertEmail = directRequest.getExpertEmail();
         String customerEmail = customer.getEmail();
 
