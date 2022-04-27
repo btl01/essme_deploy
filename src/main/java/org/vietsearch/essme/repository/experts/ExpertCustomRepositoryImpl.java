@@ -18,6 +18,7 @@ import org.vietsearch.essme.model.expert.Expert;
 import org.vietsearch.essme.repository.ResearchAreaRepository;
 import org.vietsearch.essme.utils.OpenStreetMapUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -76,12 +77,14 @@ public class ExpertCustomRepositoryImpl implements ExpertCustomRepository {
     public List<Expert> relatedExpertsByField(String field, int limit, int skip) {
         Optional<ResearchArea> optional = researchAreaRepository.findByNameVnOrNameEn(field, field);
         if (optional.isEmpty()) {
-            Query query = new Query().limit(limit).skip(skip);
-            query.addCriteria(Criteria.where("research area").regex(Pattern.compile(field, Pattern.CASE_INSENSITIVE)));
+            Query query = this.relatedExpertsByFields(List.of(field), limit, skip);
             return mongoTemplate.find(query, Expert.class);
         } else {
             ResearchArea researchArea = optional.get();
-            Query query = this.relatedExpertsByFields(researchArea.getKeys(), limit, skip);
+            List<String> fields = new ArrayList<>();
+            fields.addAll(researchArea.getKeys());
+            fields.addAll(researchArea.getKeys());
+            Query query = this.relatedExpertsByFields(fields, limit, skip);
             return mongoTemplate.find(query, Expert.class);
         }
     }
@@ -95,10 +98,9 @@ public class ExpertCustomRepositoryImpl implements ExpertCustomRepository {
 
     private Query relatedExpertsByFields(List<String> fields, int limit, int skip) {
         Query query = new Query().limit(limit).skip(skip);
-        List<Pattern> patternList = fields.stream()
-                .map(field -> Pattern.compile(field, Pattern.CASE_INSENSITIVE))
-                .collect(Collectors.toList());
-        query.addCriteria(Criteria.where("research area").elemMatch(new Criteria().in(patternList)));
+        List<Pattern> patternList = fields.stream().map(field -> Pattern.compile(field, Pattern.CASE_INSENSITIVE)).collect(Collectors.toList());
+        Criteria criteria = new Criteria().orOperator(Criteria.where("research area en").elemMatch(new Criteria().in(patternList)), Criteria.where("research area").elemMatch(new Criteria().in(patternList)));
+        query.addCriteria(criteria);
         return query;
     }
 
